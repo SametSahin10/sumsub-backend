@@ -14,46 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAccessToken = void 0;
 const axios_1 = __importDefault(require("axios"));
-const sumsub_api_signature_service_1 = require("./sumsub_api_signature_service");
+const axios_interceptors_1 = require("./axios_interceptors");
 const constants_1 = require("./constants");
-function createAndAddHeadersRequiredForSumsubAPI(config) {
-    const canAddHeadersRequiredForSumsubAuth = config.url !== undefined &&
-        config.method !== undefined &&
-        config.headers !== undefined;
-    if (canAddHeadersRequiredForSumsubAuth) {
-        addHeadersRequiredForSumsubAuth(config.url, config.method, config.headers, config.params);
-    }
-    return config;
-}
-axios_1.default.interceptors.request.use(createAndAddHeadersRequiredForSumsubAPI);
-function addHeadersRequiredForSumsubAuth(url, method, headers, queryParams) {
-    const sumsubAPISignatureService = new sumsub_api_signature_service_1.SumsubAPISignatureService({
-        url: url,
-        method: method,
-        queryParams: queryParams,
-    });
-    const sumsubAPISignature = sumsubAPISignatureService.createSignature();
-    if (headers !== undefined) {
-        headers["X-App-Access-Ts"] = sumsubAPISignature.timestamp;
-        headers["X-App-Access-Sig"] =
-            sumsubAPISignature.signature.digest("hex");
-        const SUMSUB_APP_TOKEN = process.env.SUMSUB_APP_TOKEN;
-        headers["X-App-Token"] = SUMSUB_APP_TOKEN;
-        headers["Accept"] = "application/json";
-    }
-}
+axios_1.default.interceptors.request.use(axios_interceptors_1.createAndAddHeadersRequiredForSumsubAPI);
 function getAccessToken(userID) {
     return __awaiter(this, void 0, void 0, function* () {
         const url = `${constants_1.SUMSUB_ROOT_URL}/resources/accessTokens`;
-        const requestConfig = {
-            url: url,
-            method: "POST",
-            data: null,
-            params: {
-                userId: userID,
-                levelName: "basic-kyc-level",
-            }
-        };
+        const requestConfig = createAxiosRequestConfigToGetAccessToken(url, userID);
         const response = yield (0, axios_1.default)(requestConfig);
         if (response.status !== 200)
             throw Error(response.data);
@@ -61,3 +28,14 @@ function getAccessToken(userID) {
     });
 }
 exports.getAccessToken = getAccessToken;
+function createAxiosRequestConfigToGetAccessToken(url, userID) {
+    return {
+        url: url,
+        method: "POST",
+        data: null,
+        params: {
+            userId: userID,
+            levelName: "basic-kyc-level",
+        }
+    };
+}

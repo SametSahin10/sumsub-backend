@@ -13,6 +13,7 @@ exports.handleAccessTokenEndpoint = void 0;
 const sumsub_1 = require("./sumsub");
 function handleAccessTokenEndpoint(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log("Handling access token endpoint...");
         try {
             const userID = request.query.userID;
             if (userID === undefined || typeof userID !== "string") {

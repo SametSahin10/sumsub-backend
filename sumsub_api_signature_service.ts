@@ -22,22 +22,21 @@ export class SumsubAPISignatureService {
 
         const signature = createHmac("SHA256", this.SUMSUB_SECRET_KEY);
         const timestamp = this.createTimestamp();
+        const valueToSign = this.createTheValueToSign(timestamp);
+        signature.update(valueToSign);
+        this.updateSignatureAccordingToRequestConfigData(signature);
+        return new SumsubAPISignature(signature, timestamp);
+    }
 
+    private createTheValueToSign(timestamp: number) {
         const urlWithQueryParams = axios.getUri({
             url: this.request.url, params: this.request.queryParams
         });
-
         const urlWithoutSumsubRootURL =
             urlWithQueryParams.replace(SUMSUB_ROOT_URL, "");
-
-        const valueToSign = timestamp +
+        return timestamp +
             this.request.method.toUpperCase() +
             urlWithoutSumsubRootURL;
-
-        signature.update(valueToSign);
-
-        this.updateSignatureAccordingToRequestConfigData(signature);
-        return new SumsubAPISignature(signature, timestamp);
     }
 
     private updateSignatureAccordingToRequestConfigData(signature: Hmac) {

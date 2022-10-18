@@ -4,6 +4,7 @@ import {getAccessToken} from "./sumsub";
 export async function handleAccessTokenEndpoint(
     request: Request, response: Response
 ) {
+    console.log("Handling access token endpoint...");
     try {
         const userID = request.query.userID;
 
