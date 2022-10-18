@@ -21,7 +21,7 @@ function createAxiosRequestConfigToGetAccessToken(
         data: null,
         params: {
             userId: userID,
-            levelName: "basic-kyc-level",
+            levelName: "kyc-with-face-authentication",
         }
     };
 }
